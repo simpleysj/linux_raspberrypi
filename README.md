@@ -76,115 +76,155 @@ client/
 ```
 
 ---
-⚙️ 서버 (Raspberry Pi) 빌드 및 실행 방법
-1️⃣ WiringPi 설치 (GPIO 제어 라이브러리)
-bash
-복사
-편집
-sudo apt update
-sudo apt install wiringpi
-참고: Raspberry Pi OS 최신 버전에서는 기본 제공될 수 있습니다.
-설치 후 gpio -v 명령으로 정상 설치 여부 확인 가능
 
-2️⃣ 프로젝트 빌드
-bash
-복사
-편집
-cd ~/project   # 프로젝트 디렉토리로 이동
-make           # 전체 모듈 및 서버 컴파일
-빌드 후 server/server3 실행 파일과 .so 라이브러리들이 생성됩니다.
+## ⚙️ 서버 (Raspberry Pi) 빌드 및 실행 방법
 
-3️⃣ 서버 실행 파일 설치 및 서비스 등록
-bash
-복사
-편집
-# 실행 파일을 시스템 경로에 복사
+### 1️⃣ 프로젝트 빌드
+
+```bash
+cd ~/project         # 프로젝트 디렉토리로 이동
+make clean           # 전체 모듈 및 서버 정리
+make                 # 전체 모듈 및 서버 컴파일
+```
+
+> 빌드 완료 후 `server/server3` 실행 파일과 각 모듈의 `.so` 파일이 생성됩니다.
+
+
+### 2️⃣ 서버 실행 파일 및 서비스 등록
+
+```bash
+# 실행 파일 복사
 sudo cp server/server3 /usr/local/bin/
 
-# 서비스 파일을 systemd 디렉토리에 복사
+# systemd 서비스 파일 복사
 sudo cp server/server3.service /etc/systemd/system/
 
-# systemd에 새 서비스 반영
+# systemd 서비스 재로드
 sudo systemctl daemon-reexec
-4️⃣ 서버 데몬 자동 실행 설정 및 시작
-bash
-복사
-편집
-# 부팅 시 자동 시작 설정
+```
+
+
+### 3️ 서버 데몬 등록 및 실행
+
+```bash
+# 부팅 시 자동 실행 설정
 sudo systemctl enable server3.service
 
-# 서버 즉시 시작
+# 즉시 서버 실행
 sudo systemctl start server3.service
-5️⃣ 서버 동작 확인
-✅ 상태 확인
-bash
-복사
-편집
+```
+
+
+### 4️⃣ 서버 상태 및 로그 확인
+
+#### 1. 서버 상태 확인
+
+```bash
 sudo systemctl status server3.service
-정상일 경우 Active: active (running)으로 표시됩니다.
+```
 
-✅ 실시간 로그 확인
-bash
-복사
-편집
+> 정상 동작 중일 경우 `Active: active (running)`으로 표시됩니다.
+
+#### 2. 서버에서 로그 확인
+
+```bash
 tail -n 30 /tmp/server_action.log
-클라이언트 접속 및 장치 제어 기록이 이 로그 파일에 남습니다.
+```
 
-6️⃣ 서버 재시작 및 중지 명령 (필요 시)
-bash
-복사
-편집
+> 클라이언트 연결, 명령 처리, 센서 감지 등 모든 활동 기록이 저장됩니다.
+
+
+### 5️⃣ 서버 제어 명령 (필요 시)
+
+```bash
 # 서버 재시작
 sudo systemctl restart server3.service
 
 # 서버 중지
 sudo systemctl stop server3.service
-💡 서버가 하는 일 요약
-클라이언트 명령어 수신 (LED_ON, BUZZER_OFF, 등)
+```
 
-조도센서 자동 감지 및 장치 제어
+### 📝 서버 주요 기능
 
-예약 명령(SCHEDULE BUZZER_ON AFTER 3) 처리
+* 클라이언트로부터 명령 수신 (`LED_ON`, `BUZZER_OFF`, 등)
+* 조도 센서 상태에 따른 자동 LED 제어
+* 예약 명령어 실행 (`SCHEDULE LED_ON AFTER 3`)
+* 모든 동작 `/tmp/server_action.log`에 기록
+* systemd 데몬 형태로 백그라운드 실행
 
-모든 활동 로그 /tmp/server_action.log에 기록
+---
 
-데몬 형태로 백그라운드 실행됨 (systemd 기반)
+## 💻 클라이언트 (Ubuntu) 빌드 및 실행 방법
 
-
-
-
-## ⚙️ 서버(Raspberry Pi) 빌드 및 실행 방법
-
-### 1. 의존성 설치
-```bash
-sudo apt update
-sudo apt install wiringpi
-````
-
-### 2. 전체 빌드
+### 1️⃣ 클라이언트 디렉토리로 이동
 
 ```bash
-cd project
+cd ~/client
+```
+
+### 2️⃣ 빌드
+
+```bash
 make
 ```
 
-### 3. 데몬 등록 및 실행
+> `Makefile`을 이용해 `client.c`가 컴파일되고 실행 파일 `client`가 생성됩니다.
+
+### 3️⃣ 클라이언트 실행
 
 ```bash
-sudo cp server/server3 /usr/local/bin/
-sudo cp server/server3.service /etc/systemd/system/
-sudo systemctl daemon-reexec
-sudo systemctl enable server3.service
-sudo systemctl start server3.service
+./client <서버_IP주소> <포트번호>
 ```
 
-### 4. 서버 로그 확인
+예시:
 
 ```bash
-tail -n 30 /tmp/server_action.log
+./client 192.168.0.10 12345
+```
+
+> Raspberry Pi에서 실행 중인 서버에 TCP로 연결됩니다.
+
+---
+
+### 📋 사용 가능한 명령어
+
+| 명령어                              | 설명                                      |
+| -------------------------------- | --------------------------------------- |
+| `LED_ON`, `LED_OFF`              | LED 켜기/끄기                               |
+| `LED_HIGH`, `LED_MID`, `LED_LOW` | LED 밝기 단계 조절                            |
+| `BUZZER_ON`, `BUZZER_OFF`        | 부저 켜기/끄기                                |
+| `LIGHT`                          | 조도 센서 상태 확인 및 LED 자동 제어                 |
+| `0`\~`9`                         | 입력한 숫자부터 카운트다운                          |
+| `SCHEDULE <CMD> AFTER <초>`       | 명령 예약 실행 (`예: SCHEDULE LED_ON AFTER 3`) |
+| `exit`                           | 클라이언트 종료                                |
+
+---
+
+### 📝 예시
+
+```bash
+cmd> LED_ON
+resp: OK
+
+cmd> SCHEDULE BUZZER_ON AFTER 5
+resp: SCHEDULED
 ```
 
 ---
+
+### 🔐 안전 종료
+
+```bash
+exit OR Ctrl + C
+```
+
+> 인터럽트 시 자동으로 서버와의 소켓을 닫고 종료 메시지를 출력합니다.
+
+---
+
+위 내용을 `README.md`에 그대로 붙여 넣으면 일관성 있는 클라이언트 섹션이 완성됩니다.
+다음으로 필요하신 내용은 `명령어 프로토콜 정리`, `문서 제출용 압축 구성`, 또는 `.md` 완성본 내보내기 등 도와드릴 수 있어요.
+
 
 ## 💻 클라이언트(Ubuntu) 빌드 및 실행 방법
 
@@ -200,46 +240,23 @@ make
 ./client 192.168.0.10 12345:
 ```
 
----
+## ⚠ 문제점 및 향후 개선 방향
 
-## 🔌 클라이언트 → 서버 명령어 프로토콜
+* 클라이언트 명령어 방식이 텍스트 기반이라 사용자 친화성이 낮음
 
-| 명령어           | 기능 설명                   |
-| ------------- | ----------------------- |
-| `BUZZER_ON`   | 부저 켜기                   |
-| `BUZZER_OFF`  | 부저 끄기                   |
-| `LED_HIGH`    | 밝은 조도 LED 점등            |
-| `LED_MID`     | 중간 조도 LED 점등            |
-| `LED_LOW`     | 어두운 조도 LED 점등           |
-| `SEGMENT_ON`  | 7세그먼트 카운트다운 시작 (10 → 0) |
-| `SEGMENT_OFF` | 7세그먼트 종료                |
+* 예외 상황 처리 부족
 
----
+* 설정 값(예: 조도센서 임계값 등)이 코드에 고정되어 있어 유지보수 불편
 
-## 🧪 실행 예시
+## ※ 향후 개선 방향
+* 스레드 풀(Thread Pool) 또는 이벤트 기반 처리(epoll 등) 구조로 개선하여 리소스 효율 향상
 
-* 클라이언트에서 `BUZZER_ON` 전송 → 라즈베리파이에서 부저 작동
-* 조도센서 값이 임계값 이하일 경우 자동으로 부저 작동
-* 클라이언트가 연결되지 않아도 서버는 자동 감지 기능 수행
+* GUI 클라이언트 또는 웹 대시보드 구현으로 사용 편의성 강화
 
----
+* 센서 상태의 실시간 피드백 전송 구현 (클라이언트에 push 방식으로 알림)
 
-## ⚠️ 문제점 및 향후 개선 방향
+* 설정 파일 기반 시스템 구성 (.conf 파일 등으로 임계값, 포트 등 외부 설정화)
 
-* 조도센서 임계값이 고정되어 있음 → 설정값으로 분리 필요
-* WiringPi는 더 이상 공식 지원되지 않음 → `pigpio` 또는 `gpiochip` 기반으로 개선 예정
-* 클라이언트에 GUI 또는 웹 기반 인터페이스 추가 가능
+* 에러 및 예외 처리 강화 (명령어 유효성 검사, 장치 실패 로깅 등)
 
----
 
-## 🗃 제출 문서 구성
-
-* `개발문서`: 개요, 일정, 구현 내용, 문제점, 보완 사항 포함
-* `README.md`: 전체 코드 설명 및 빌드 방법 포함
-* `실행과정.txt`: 실행 명령어 및 결과 기록
-
----
-위 내용을 `README.md`로 저장하시면 완벽한 제출용 문서가 됩니다.  
-`.md` 파일로 따로 받아보고 싶으시면 말씀해주세요!  
-추가하거나 수정하고 싶은 내용이 있다면 언제든지 알려주세요.
-```
