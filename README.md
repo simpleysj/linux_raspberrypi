@@ -31,7 +31,7 @@ Raspberry Pi 서버와 Ubuntu 클라이언트 간 TCP 통신을 통해 LED, 부�
   * 데몬 (Server)
   * CLI (Client)
 
-## 하드웨어 구성 예시
+## 하드웨어 구성
 아래 사진은 Raspberry Pi와 센서 및 제어 장치가 실제로 연결된 구성입니다.
 ![circuit](https://github.com/user-attachments/assets/bb7ad799-9d7d-4da6-a183-1493dd44fec3)
 
