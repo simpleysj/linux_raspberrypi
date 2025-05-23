@@ -1,0 +1,14 @@
+[Unit]
+Description=Server3 TCP Device Daemon
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/server3
+Restart=on-failure
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,35 @@
+CC      := gcc
+CFLAGS  := -Wall -fPIC
+LDLIBS  := -ldl -lpthread -lwiringPi
+
+.PHONY: all led light buzzer 7segment server3 clean
+
+all: led light buzzer 7segment server3
+
+led:
+	$(CC) $(CFLAGS) -shared -o led/led.so \
+		led/led.c -lwiringPi
+
+light:
+	$(CC) $(CFLAGS) -shared -o light/light.so \
+		light/light.c -lwiringPi
+
+buzzer:
+	$(CC) $(CFLAGS) -shared -o buzzer/buzzer.so \
+		buzzer/buzzer.c -lwiringPi
+
+7segment:
+	$(CC) $(CFLAGS) -shared -o 7segment/7segment.so \
+		7segment/7segment.c -lwiringPi
+
+server3:
+	$(CC) $(CFLAGS) -o server/server3 \
+		server/server3.c $(LDLIBS)
+
+clean:
+	rm -f led/led.so \
+	      light/light.so \
+	      buzzer/buzzer.so \
+	      7segment/7segment.so \
+	      server/server3
+
