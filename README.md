@@ -13,6 +13,17 @@ Raspberry Pi 서버와 Ubuntu 클라이언트 간 TCP 통신을 통해 LED, 부�
 * **제어 장치**: LED, 부저, 조도 센서, 7세그먼트
 * **구성 방식**: 각 장치를 `.so` 형태의 동적 라이브러리로 분리하고, 서버에서 `dlopen` 방식으로 제어
 
+---
+## 개발 일정
+
+| 날짜             | 주요 작업 내용                                           |
+| -------------- | -------------------------------------------------- |
+| 2025.05.21 (수) | LED, 부저, 조도 센서, 7세그먼트 등 **장치 기능 구현 완료**            |
+| 2025.05.22 (목) | TCP 기반 서버 구축, 데몬 프로세스 구현, 클라이언트 연동                 |
+| 2025.05.23 (금) | 전체 시스템 **QA(기능 테스트)** 및 **문서 작성 (README, 실행과정 등)** |
+
+---
+
 
 ## 사용 기술 및 환경
 
@@ -382,17 +393,18 @@ void countdownWithSound(int num) {
 ## 서버 (Raspberry Pi) 빌드 및 실행 방법
 
 ### 1️⃣ 프로젝트 빌드
-
+![image](https://github.com/user-attachments/assets/8da3cd3f-1974-4ceb-9071-0584da1bc8e0)
 ```bash
-cd ~/project         # 프로젝트 디렉토리로 이동
-make clean           # 전체 모듈 및 서버 정리
-make                 # 전체 모듈 및 서버 컴파일
+cd ~/project                      # 프로젝트 디렉토리로 이동
+make -f Makefile3 clean           # 전체 모듈 및 서버 정리
+make -f Makefile3                 # 전체 모듈 및 서버 컴파일
 ```
 
 > 빌드 완료 후 `server/server3` 실행 파일과 각 모듈의 `.so` 파일이 생성됩니다.
 
 
 ### 2️⃣ 서버 실행 파일 및 서비스 등록
+![image](https://github.com/user-attachments/assets/a516e398-8850-4f6b-a83c-17ffbe2867d0)
 
 ```bash
 # 실행 파일 복사
@@ -418,6 +430,7 @@ sudo systemctl start server3.service
 
 
 ### 4️⃣ 서버 상태 및 로그 확인
+![image](https://github.com/user-attachments/assets/d5382b08-4245-4622-8aba-8016e4a910c8)
 
 #### 1. 서버 상태 확인
 
@@ -459,6 +472,7 @@ sudo systemctl stop server3.service
 ## 클라이언트 (Ubuntu) 빌드 및 실행 방법
 
 ### 1️⃣ 클라이언트 디렉토리로 이동
+![image](https://github.com/user-attachments/assets/741b1c7d-c84d-4099-ac93-441b3fcfa34e)
 
 ```bash
 cd ~/client
@@ -515,7 +529,7 @@ exit OR Ctrl + C
 
 
 ## 클라이언트(Ubuntu) 빌드 및 실행 방법
-
+![image](https://github.com/user-attachments/assets/b5665dc4-1b20-4c14-974b-f5c5c00ab33f)
 ```bash
 cd client
 make
@@ -530,8 +544,6 @@ make
 
 ## 평가 항목 외 추가기능
 
-<details>
-<summary>클릭하여 펼치기</summary>
 
 <br>
 
@@ -539,12 +551,7 @@ make
 | ------------------------------------------- | ------------------------------------------------------------------- |
 | **동적 명령 예약 실행**<br>`SCHEDULE ... AFTER ...` | 클라이언트가 명령어를 일정 시간 후에 실행하도록 예약 가능<br>예: `SCHEDULE LED_ON AFTER 5`    |
 | **로그 기록 기능**<br>`/tmp/server_action.log`    | 모든 명령 처리 및 이벤트를 타임스탬프와 함께 로그 파일에 기록<br>→ 시스템 동작 추적 및 디버깅 용이         |
-| **데몬 프로세스화**<br>(`systemd` 등록)              | 서버 프로그램을 `systemd` 서비스로 등록하여<br>백그라운드 실행 및 부팅 시 자동 시작 지원            |
-| **명령어 유효성 검사 및 포맷 예외 처리**                   | 예약 명령 형식 오류 등 잘못된 입력에 대해<br>에러 메시지 응답 및 로그 기록 처리                    |
-| **클라이언트 종료 시 자원 정리 처리**                     | 클라이언트 연결 종료 시 LED 및 세그먼트를 초기화<br>→ `led_off()`, `clearSegment()` 호출 |
 | **명령어 입력 안내 메뉴 출력**                         | 클라이언트 프로그램 실행 시<br>사용 가능한 명령어를 보기 쉽게 안내 (`print_menu()`)            |
-
-</details>
 
 ---
 
